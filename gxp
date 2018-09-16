@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# gxp - with GPLv3 license
+# Author: Mustafa Ozcelikors
+# Based upon whiptail examples
+
+# Start copy process in background
+cp $1 $2 & 
+
+# Keep checking if the process is running. And keep a count.
+{
+        i="0"
+        while (true)
+        do
+            proc=$(ps aux | grep -v grep | grep -e "cp $1")
+            if [[ "$proc" == "" ]]; then break; fi
+            # Sleep for a longer period if the database is really big 
+            # as dumping will take longer.
+            sleep 0.01
+            echo $i
+            i=$(expr $i + 1)
+            if [ $i = 100 ]; then i=0; fi
+        done
+        # If it is done then display 100%
+        echo 100
+        # Give it some time to display the progress to the user.
+        sleep 2
+} | whiptail --title "gxp (Graphical Copy)" --gauge "Copying $1 --->> $2" 8 78 0
